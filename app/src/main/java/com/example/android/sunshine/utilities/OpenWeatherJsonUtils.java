@@ -17,6 +17,8 @@ package com.example.android.sunshine.utilities;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.os.Bundle;
+import android.util.Log;
 
 import com.example.android.sunshine.data.SunshinePreferences;
 import com.example.android.sunshine.data.WeatherContract;
@@ -27,10 +29,22 @@ import org.json.JSONObject;
 
 import java.net.HttpURLConnection;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.PutDataMapRequest;
+import com.google.android.gms.wearable.PutDataRequest;
+import com.google.android.gms.wearable.Wearable;
+
+
 /**
  * Utility functions to handle OpenWeatherMap JSON data.
  */
 public final class OpenWeatherJsonUtils {
+
+    private static GoogleApiClient mGoogleApiClient;
+    private static final String PATH = "/weather";
+
 
     /* Location information */
     private static final String OWM_CITY = "city";
@@ -117,8 +131,9 @@ public final class OpenWeatherJsonUtils {
 //        long normalizedUtcStartDay = SunshineDateUtils.normalizeDate(now);
 
         long normalizedUtcStartDay = SunshineDateUtils.getNormalizedUtcDateForToday();
+        int arrLength=jsonWeatherArray.length();
 
-        for (int i = 0; i < jsonWeatherArray.length(); i++) {
+        for (int i = 0; i <arrLength ; i++) {
 
             long dateTimeMillis;
             double pressure;
@@ -178,7 +193,78 @@ public final class OpenWeatherJsonUtils {
 
             weatherContentValues[i] = weatherValues;
         }
-
+        if(arrLength>0) {
+            googleClientConnect(jsonWeatherArray, context);
+        }
         return weatherContentValues;
     }
+
+    /**
+     * referred https://medium.com/@manuelvicnt/android-wear-accessing-the-data-layer-api-d64fd55982e3#.ygblpp9ez
+     * @param jsonArray
+     * @param context
+     */
+    private static void  googleClientConnect(final JSONArray jsonArray, final Context context)
+    {
+
+        mGoogleApiClient = new GoogleApiClient.Builder(context)
+                .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
+                    @Override
+                    public void onConnected(Bundle connectionHint) {
+                        Log.d("wear","conected");
+                        sendDataToWatchFace(jsonArray,context);
+                    }
+
+                    @Override
+                    public void onConnectionSuspended(int cause) {
+
+                    }
+                })
+                .addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
+                    @Override
+                    public void onConnectionFailed(ConnectionResult result) {
+
+                    }
+                })
+                // Request access only to the Wearable API
+                .addApi(Wearable.API)
+                .build();
+
+        mGoogleApiClient.connect();
+
+    }
+
+
+
+    private static void  sendDataToWatchFace(JSONArray jsonArray,Context context)
+    {
+        try {
+            JSONObject dayForecast = jsonArray.getJSONObject(0);
+            JSONObject weatherObject =
+                    dayForecast.getJSONArray(OWM_WEATHER).getJSONObject(0);
+
+          int  weatherId = weatherObject.getInt(OWM_WEATHER_ID);
+
+
+            JSONObject temperatureObject = dayForecast.getJSONObject(OWM_TEMPERATURE);
+           double high = temperatureObject.getDouble(OWM_MAX);
+            double low = temperatureObject.getDouble(OWM_MIN);
+            Log.d("got data", "\nMax: " + high + "\nMin : " + low + "\nweathrID: " + weatherId);
+
+
+            PutDataMapRequest mapRequest = PutDataMapRequest.create(PATH);
+            DataMap dataMap = mapRequest.getDataMap();
+            dataMap.putString(OWM_MAX, SunshineWeatherUtils.formatTemperature(context, high));
+           dataMap.putString(OWM_MIN, SunshineWeatherUtils.formatTemperature(context, low));
+           dataMap.putInt(OWM_WEATHER_ID, weatherId);
+            PutDataRequest putDataRequest = mapRequest.asPutDataRequest();
+            Wearable.DataApi.putDataItem(mGoogleApiClient, putDataRequest);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
 }
