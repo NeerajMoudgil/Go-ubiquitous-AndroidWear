@@ -44,7 +44,7 @@ public class SunshineSyncUtils {
 
     private static boolean sInitialized;
 
-    private static final String SUNSHINE_SYNC_TAG = "sunshine-sync";
+    private static final String SUNSHINE_SYNC_TAG = "com.example.android.sunshine-sync";
 
     /**
      * Schedules a repeating sync of Sunshine's weather data using FirebaseJobDispatcher.

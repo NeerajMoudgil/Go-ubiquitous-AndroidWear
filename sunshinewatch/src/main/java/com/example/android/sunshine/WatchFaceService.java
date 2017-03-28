@@ -1,4 +1,4 @@
-package com.example.sunshinewatch;
+package com.example.android.sunshine;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.wearable.watchface.CanvasWatchFaceService;
-import android.support.wearable.watchface.WatchFaceStyle;
 import android.text.TextPaint;
 import android.util.Log;
 import android.util.TypedValue;
@@ -64,7 +63,7 @@ public class WatchFaceService extends CanvasWatchFaceService  {
         // We will initialize our drawing components here
 
 
-      private GoogleApiClient mGoogleApiClient;
+        private GoogleApiClient mGoogleApiClient;
 
         @Override
         public void onCreate(SurfaceHolder holder) {
@@ -88,7 +87,7 @@ public class WatchFaceService extends CanvasWatchFaceService  {
 
             backgroundColor = Color.parseColor("#607D8B");
 
-             mGoogleApiClient = new GoogleApiClient.Builder(WatchFaceService.this)
+            mGoogleApiClient = new GoogleApiClient.Builder(WatchFaceService.this)
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
                     .addApi(Wearable.API)

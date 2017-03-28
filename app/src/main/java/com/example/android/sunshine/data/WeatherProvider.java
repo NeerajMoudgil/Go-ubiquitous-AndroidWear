@@ -206,7 +206,7 @@ public class WeatherProvider extends ContentProvider {
             /*
              * When sUriMatcher's match method is called with a URI that looks something like this
              *
-             *      content://com.example.android.sunshine/weather/1472214172
+             *      content://com.example.android.com.example.android.sunshine/weather/1472214172
              *
              * sUriMatcher's match method will return the code that indicates to us that we need
              * to return the weather for a particular date. The date in this code is encoded in
@@ -264,7 +264,7 @@ public class WeatherProvider extends ContentProvider {
             /*
              * When sUriMatcher's match method is called with a URI that looks EXACTLY like this
              *
-             *      content://com.example.android.sunshine/weather/
+             *      content://com.example.android.com.example.android.sunshine/weather/
              *
              * sUriMatcher's match method will return the code that indicates to us that we need
              * to return all of the weather in our weather table.
