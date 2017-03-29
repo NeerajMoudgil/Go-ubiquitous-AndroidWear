@@ -1,2 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <dimen name="dateTextSize">12dp</dimen>
+    <dimen name="timeTextSize">40dp</dimen>
+    <dimen name="tempTextSize">30dp</dimen>
+
+    <dimen name="y_offset_time">80dp</dimen>
+    <dimen name="y_offset_date">100dp</dimen>
+
+    <dimen name="y_offset_divider">115dp</dimen>
+    <dimen name="y_offset_weather">150dp</dimen>
+
+</resources>
