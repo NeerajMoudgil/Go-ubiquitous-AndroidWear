@@ -42,37 +42,28 @@ import com.google.android.gms.wearable.Wearable;
  */
 public final class OpenWeatherJsonUtils {
 
-    private static GoogleApiClient mGoogleApiClient;
     private static final String PATH = "/weather";
-
-
     /* Location information */
     private static final String OWM_CITY = "city";
     private static final String OWM_COORD = "coord";
-
     /* Location coordinate */
     private static final String OWM_LATITUDE = "lat";
     private static final String OWM_LONGITUDE = "lon";
-
     /* Weather information. Each day's forecast info is an element of the "list" array */
     private static final String OWM_LIST = "list";
-
     private static final String OWM_PRESSURE = "pressure";
     private static final String OWM_HUMIDITY = "humidity";
     private static final String OWM_WINDSPEED = "speed";
     private static final String OWM_WIND_DIRECTION = "deg";
-
     /* All temperatures are children of the "temp" object */
     private static final String OWM_TEMPERATURE = "temp";
-
     /* Max temperature for the day */
     private static final String OWM_MAX = "max";
     private static final String OWM_MIN = "min";
-
     private static final String OWM_WEATHER = "weather";
     private static final String OWM_WEATHER_ID = "id";
-
     private static final String OWM_MESSAGE_CODE = "cod";
+    private static GoogleApiClient mGoogleApiClient;
 
     /**
      * This method parses JSON from a web response and returns an array of Strings
@@ -83,9 +74,7 @@ public final class OpenWeatherJsonUtils {
      * now, we just convert the JSON into human-readable strings.
      *
      * @param forecastJsonStr JSON response from server
-     *
      * @return Array of Strings describing weather data
-     *
      * @throws JSONException If JSON data cannot be properly parsed
      */
     public static ContentValues[] getWeatherContentValuesFromJson(Context context, String forecastJsonStr)
@@ -131,9 +120,9 @@ public final class OpenWeatherJsonUtils {
 //        long normalizedUtcStartDay = SunshineDateUtils.normalizeDate(now);
 
         long normalizedUtcStartDay = SunshineDateUtils.getNormalizedUtcDateForToday();
-        int arrLength=jsonWeatherArray.length();
+        int arrLength = jsonWeatherArray.length();
 
-        for (int i = 0; i <arrLength ; i++) {
+        for (int i = 0; i < arrLength; i++) {
 
             long dateTimeMillis;
             double pressure;
@@ -193,7 +182,7 @@ public final class OpenWeatherJsonUtils {
 
             weatherContentValues[i] = weatherValues;
         }
-        if(arrLength>0) {
+        if (arrLength > 0) {
             googleClientConnect(jsonWeatherArray, context);
         }
         return weatherContentValues;
@@ -201,18 +190,18 @@ public final class OpenWeatherJsonUtils {
 
     /**
      * referred https://medium.com/@manuelvicnt/android-wear-accessing-the-data-layer-api-d64fd55982e3#.ygblpp9ez
+     *
      * @param jsonArray
      * @param context
      */
-    private static void  googleClientConnect(final JSONArray jsonArray, final Context context)
-    {
+    private static void googleClientConnect(final JSONArray jsonArray, final Context context) {
 
         mGoogleApiClient = new GoogleApiClient.Builder(context)
                 .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
                     @Override
                     public void onConnected(Bundle connectionHint) {
-                        Log.d("wear","conected");
-                        sendDataToWatchFace(jsonArray,context);
+                        Log.d("wear", "conected");
+                        sendDataToWatchFace(jsonArray, context);
                     }
 
                     @Override
@@ -235,19 +224,17 @@ public final class OpenWeatherJsonUtils {
     }
 
 
-
-    private static void  sendDataToWatchFace(JSONArray jsonArray,Context context)
-    {
+    private static void sendDataToWatchFace(JSONArray jsonArray, Context context) {
         try {
             JSONObject dayForecast = jsonArray.getJSONObject(0);
             JSONObject weatherObject =
                     dayForecast.getJSONArray(OWM_WEATHER).getJSONObject(0);
 
-          int  weatherId = weatherObject.getInt(OWM_WEATHER_ID);
+            int weatherId = weatherObject.getInt(OWM_WEATHER_ID);
 
 
             JSONObject temperatureObject = dayForecast.getJSONObject(OWM_TEMPERATURE);
-           double high = temperatureObject.getDouble(OWM_MAX);
+            double high = temperatureObject.getDouble(OWM_MAX);
             double low = temperatureObject.getDouble(OWM_MIN);
             Log.d("got data", "\nMax: " + high + "\nMin : " + low + "\nweathrID: " + weatherId);
 
@@ -255,8 +242,8 @@ public final class OpenWeatherJsonUtils {
             PutDataMapRequest mapRequest = PutDataMapRequest.create(PATH);
             DataMap dataMap = mapRequest.getDataMap();
             dataMap.putString(OWM_MAX, SunshineWeatherUtils.formatTemperature(context, high));
-           dataMap.putString(OWM_MIN, SunshineWeatherUtils.formatTemperature(context, low));
-           dataMap.putInt(OWM_WEATHER_ID, weatherId);
+            dataMap.putString(OWM_MIN, SunshineWeatherUtils.formatTemperature(context, low));
+            dataMap.putInt(OWM_WEATHER_ID, weatherId);
             PutDataRequest putDataRequest = mapRequest.asPutDataRequest();
             Wearable.DataApi.putDataItem(mGoogleApiClient, putDataRequest);
 
